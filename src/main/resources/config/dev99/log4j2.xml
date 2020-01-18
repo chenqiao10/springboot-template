@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="WARN" monitorInterval="30">
+	<Properties>
+		<property name="log_name">run</property>
+
+		<Property name="log_pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} %5p --- [%t] %logger [%line] : %m%n%xwEx</Property>
+		<property name="log_pattern_short">%d{yyyy-MM-dd HH:mm:ss} - %msg%n</property>
+		
+		<property name="rolling_file_name">%d{yyyy-MM-dd}.log</property>
+	</Properties>
+	<Appenders>
+		<RollingRandomAccessFile name="runtime" fileName="${sys:LOG_PATH}/${sys:log_name}.log" filePattern="${sys:LOG_PATH}/${sys:log_name}-${date:yyyy-MM}/${sys:log_name}-${sys:rolling_file_name}.gz">
+            <PatternLayout pattern="${sys:log_pattern}" />  
+            <Policies>  
+                <TimeBasedTriggeringPolicy modulate="true" interval="1" />
+            </Policies>
+            <DefaultRolloverStrategy>
+            	<Delete basePath="${sys:LOG_PATH}" maxDepth="2">  
+                     <IfFileName glob="*/${sys:log_name}-*.log.gz" />  
+                     <IfLastModified age="30D" />
+            	</Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+        <RollingRandomAccessFile name="runtime-success" fileName="${sys:LOG_PATH}/${sys:log_name}_success.log" filePattern="${sys:LOG_PATH}/${sys:log_name}_success-${date:yyyy-MM}/${sys:log_name}_success-${sys:rolling_file_name}.gz">  
+            <PatternLayout pattern="${sys:log_pattern_short}" />  
+            <Policies>  
+                <TimeBasedTriggeringPolicy modulate="true" interval="1" />  
+            </Policies>     
+            <DefaultRolloverStrategy/>
+        </RollingRandomAccessFile>
+        <RollingRandomAccessFile name="runtime-failure" fileName="${sys:LOG_PATH}/${sys:log_name}_failure.log" filePattern="${sys:LOG_PATH}/${sys:log_name}_failure-${date:yyyy-MM}/${sys:log_name}_failure-${sys:rolling_file_name}.gz">  
+            <PatternLayout pattern="${sys:log_pattern_short}" />  
+            <Policies>  
+                <TimeBasedTriggeringPolicy modulate="true" interval="1" />  
+            </Policies>     
+            <DefaultRolloverStrategy />
+        </RollingRandomAccessFile>
+        <RollingRandomAccessFile name="runtime-listener" fileName="${sys:LOG_PATH}/${sys:log_name}_listener.log" filePattern="${sys:LOG_PATH}/${sys:log_name}_listener-${date:yyyy-MM}/${sys:log_name}_listener-${sys:rolling_file_name}.gz">  
+            <PatternLayout pattern="${sys:log_pattern_short}" />  
+            <Policies>  
+                <TimeBasedTriggeringPolicy modulate="true" interval="1" />  
+            </Policies>
+            <DefaultRolloverStrategy>
+            	<Delete basePath="${sys:LOG_PATH}" maxDepth="2">  
+                     <IfFileName glob="*/${sys:log_name}_listener-*.log.gz" />  
+                     <IfLastModified age="30D" />
+            	</Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+	</Appenders>
+	<Loggers>
+		<Logger name="org.apache.catalina.startup.DigesterFactory" level="error" />
+		<Logger name="org.apache.catalina.util.LifecycleBase" level="error" />
+		<Logger name="org.apache.coyote.http11.Http11NioProtocol" level="warn" />
+		<logger name="org.apache.sshd.common.util.SecurityUtils" level="warn"/>
+		<Logger name="org.apache.tomcat.util.net.NioSelectorPool" level="warn" />
+		<Logger name="org.crsh.plugin" level="warn" />
+		<logger name="org.crsh.ssh" level="warn"/>
+		<Logger name="org.eclipse.jetty.util.component.AbstractLifeCycle" level="error" />
+		<Logger name="org.hibernate.validator.internal.util.Version" level="warn" />
+		<logger name="org.springframework.boot.actuate.autoconfigure.CrshAutoConfiguration" level="warn"/>
+		<logger name="org.springframework.boot.actuate.endpoint.jmx" level="warn"/>
+		<logger name="org.thymeleaf" level="error"/>
+		
+		<logger name="com.wish.jxzl.config.security.CustomApplicationListener" level="info" additivity="false">
+			<appender-ref ref="runtime-listener" />
+		</logger>
+		<logger name="com.wish.jxzl.config.security.CustomSimpleUrlAuthenticationSuccessHandler" level="info" additivity="false">
+			<appender-ref ref="runtime-success" />
+		</logger>
+		<logger name="com.wish.jxzl.config.security.CustomSimpleUrlAuthenticationFailureHandler" level="info" additivity="false">
+			<appender-ref ref="runtime-failure" />
+		</logger>
+		
+		<logger name="com.example" level="debug"/>
+		
+		<Root level="info">
+			<AppenderRef ref="runtime" />
+		</Root>
+	</Loggers>
+</configuration>
